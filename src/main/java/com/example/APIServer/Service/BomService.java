@@ -6,7 +6,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
-public class ErpApiService {
+public class BomService {
     private final RestTemplate restTemplate;
 
     public Object getErpBoms() { // 반환 타입을 String -> Object로 변경

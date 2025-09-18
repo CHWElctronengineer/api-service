@@ -9,22 +9,35 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@AllArgsConstructor
+//@AllArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
 
+    public SecurityConfig(JwtProvider jwtProvider) {
+        this.jwtProvider = jwtProvider;
+        System.out.println(">>>>>>>>>> SecurityConfig가 성공적으로 로드되었습니다! <<<<<<<<<<");
+    }
+
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
                 .cors(Customizer.withDefaults())
                 .csrf(csrf ->csrf.disable())
+
+                // ★★★ 1. 기본 폼 로그인 비활성화 ★★★
+                .formLogin(AbstractHttpConfigurer::disable)
+                // ★★★ 2. HTTP Basic 인증 비활성화 ★★★
+                .httpBasic(AbstractHttpConfigurer::disable)
+
                 .sessionManagement(
                         sess ->sess.sessionCreationPolicy(
                                 SessionCreationPolicy.STATELESS
