@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/proxy") // 기존 API와 겹치지 않도록 '/proxy' 같은 경로 사용
 @RequiredArgsConstructor
-public class Controller {
+public class EmployeeController {
 
     private final EmployeeService erpApiService;
 
