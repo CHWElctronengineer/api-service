@@ -26,15 +26,25 @@ public class LogAspect {
     private final ApiLogService apiLogService;
     private final ObjectMapper objectMapper;
 
-    // 모든 Controller 패키지의 클래스에 있는 모든 메서드에 대해 적용
+    // A pointcut that targets all methods in any class with 'Controller' in its name
     @Pointcut("execution(* com.example.APIServer.Controller.*Controller.*(..))")
     public void controllerMethods() {}
 
+    // Advice that runs around the execution of the methods specified by the pointcut
     @Around("controllerMethods()")
     public Object apiLog(ProceedingJoinPoint joinPoint) throws Throwable {
-        long startTime = System.currentTimeMillis();
-        String traceId = UUID.randomUUID().toString(); // 각 요청에 고유한 추적 ID 생성
+
+        // Get the HttpServletRequest object from the current request context
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+
+        // If the request URI is for the logs endpoint, proceed without logging
+        if (request.getRequestURI().startsWith("/api/logs")) {
+            return joinPoint.proceed();
+        }
+
+        // The following logic will only execute for requests that are NOT for /api/logs
+        long startTime = System.currentTimeMillis();
+        String traceId = UUID.randomUUID().toString();
 
         ApiLogDto logDto = new ApiLogDto();
         logDto.setServiceName("APIServer");
@@ -43,7 +53,7 @@ public class LogAspect {
         logDto.setClientIp(request.getRemoteAddr());
         logDto.setTraceId(traceId);
 
-        // 요청 페이로드 로깅
+        // Capture and log the request payload if it exists
         Object[] args = joinPoint.getArgs();
         if (args.length > 0 && args[0] instanceof Object) {
             logDto.setRequestPayload(objectMapper.convertValue(args[0], Object.class));
@@ -51,17 +61,29 @@ public class LogAspect {
 
         Object result = null;
         try {
-            result = joinPoint.proceed(); // 실제 컨트롤러 메소드 실행
+            // Proceed with the actual controller method execution
+            result = joinPoint.proceed();
+
+            // Capture the response status and payload
             if (result instanceof ResponseEntity) {
                 ResponseEntity<?> responseEntity = (ResponseEntity<?>) result;
                 logDto.setResponseStatus(responseEntity.getStatusCode().value());
                 logDto.setResponsePayload(objectMapper.writeValueAsString(responseEntity.getBody()));
+            } else {
+                // If it's not a ResponseEntity, assume a 200 OK status and capture the body
+                logDto.setResponseStatus(200);
+                if (result != null) {
+                    logDto.setResponsePayload(objectMapper.writeValueAsString(result));
+                }
             }
         } catch (Throwable e) {
             log.error("API Logging Error: {}", e.getMessage(), e);
-            throw e; // 예외를 다시 던져서 기존 로직에 영향을 주지 않음
+            // On exception, record a 500 status and re-throw the exception
+            logDto.setResponseStatus(500);
+            logDto.setResponsePayload("{\"error\": \"" + e.getMessage() + "\"}");
+            throw e;
         } finally {
-            // 로그 저장
+            // Save the log entry to the database
             apiLogService.createLog(logDto);
             long endTime = System.currentTimeMillis();
             log.info("[{}] {} {} - {}ms", traceId, request.getMethod(), request.getRequestURI(), endTime - startTime);
