@@ -26,23 +26,18 @@ public class LogAspect {
     private final ApiLogService apiLogService;
     private final ObjectMapper objectMapper;
 
-    // A pointcut that targets all methods in any class with 'Controller' in its name
     @Pointcut("execution(* com.example.APIServer.Controller.*Controller.*(..))")
     public void controllerMethods() {}
 
-    // Advice that runs around the execution of the methods specified by the pointcut
     @Around("controllerMethods()")
     public Object apiLog(ProceedingJoinPoint joinPoint) throws Throwable {
 
-        // Get the HttpServletRequest object from the current request context
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 
-        // If the request URI is for the logs endpoint, proceed without logging
         if (request.getRequestURI().startsWith("/api/logs")) {
             return joinPoint.proceed();
         }
 
-        // The following logic will only execute for requests that are NOT for /api/logs
         long startTime = System.currentTimeMillis();
         String traceId = UUID.randomUUID().toString();
 
@@ -53,24 +48,33 @@ public class LogAspect {
         logDto.setClientIp(request.getRemoteAddr());
         logDto.setTraceId(traceId);
 
-        // Capture and log the request payload if it exists
         Object[] args = joinPoint.getArgs();
-        if (args.length > 0 && args[0] instanceof Object) {
-            logDto.setRequestPayload(objectMapper.convertValue(args[0], Object.class));
+        if (args.length > 0 && args[0] != null) {
+            try {
+                logDto.setRequestPayload(objectMapper.writeValueAsString(args[0]));
+            } catch (Exception e) {
+                logDto.setRequestPayload("Request payload logging error: " + e.getMessage());
+            }
         }
 
         Object result = null;
         try {
-            // Proceed with the actual controller method execution
             result = joinPoint.proceed();
 
-            // Capture the response status and payload
             if (result instanceof ResponseEntity) {
                 ResponseEntity<?> responseEntity = (ResponseEntity<?>) result;
                 logDto.setResponseStatus(responseEntity.getStatusCode().value());
-                logDto.setResponsePayload(objectMapper.writeValueAsString(responseEntity.getBody()));
+
+                // ✅ [수정] 응답 본문이 byte 배열(이미지 데이터)인지 확인
+                if (responseEntity.getBody() instanceof byte[]) {
+                    byte[] responseBytes = (byte[]) responseEntity.getBody();
+                    // ✅ 이미지 데이터인 경우, 전체 내용을 저장하는 대신 간단한 요약 메시지를 저장
+                    logDto.setResponsePayload("Image byte data (size: " + responseBytes.length + " bytes)");
+                } else if (responseEntity.getBody() != null) {
+                    // ✅ 다른 타입(JSON 등)의 응답은 기존처럼 전체 내용을 기록
+                    logDto.setResponsePayload(objectMapper.writeValueAsString(responseEntity.getBody()));
+                }
             } else {
-                // If it's not a ResponseEntity, assume a 200 OK status and capture the body
                 logDto.setResponseStatus(200);
                 if (result != null) {
                     logDto.setResponsePayload(objectMapper.writeValueAsString(result));
@@ -78,12 +82,10 @@ public class LogAspect {
             }
         } catch (Throwable e) {
             log.error("API Logging Error: {}", e.getMessage(), e);
-            // On exception, record a 500 status and re-throw the exception
             logDto.setResponseStatus(500);
             logDto.setResponsePayload("{\"error\": \"" + e.getMessage() + "\"}");
             throw e;
         } finally {
-            // Save the log entry to the database
             apiLogService.createLog(logDto);
             long endTime = System.currentTimeMillis();
             log.info("[{}] {} {} - {}ms", traceId, request.getMethod(), request.getRequestURI(), endTime - startTime);
