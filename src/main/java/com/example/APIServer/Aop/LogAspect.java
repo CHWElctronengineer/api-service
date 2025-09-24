@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -79,11 +80,20 @@ public class LogAspect {
         Object[] args = joinPoint.getArgs();
         // 파라미터가 존재하고 null이 아닐 경우
         if (args.length > 0 && args[0] != null) {
-            try {
-                // 첫 번째 파라미터를 JSON 문자열로 변환하여 저장합니다.
-                logDto.setRequestPayload(objectMapper.writeValueAsString(args[0]));
-            } catch (Exception e) {
-                logDto.setRequestPayload("Request payload logging error: " + e.getMessage());
+            // 파라미터가 MultipartFile 타입인지 먼저 확인합니다.
+            if (args[0] instanceof MultipartFile) {
+                MultipartFile file = (MultipartFile) args[0];
+                // 파일인 경우, 파일의 요약 정보만 기록합니다.
+                String payloadSummary = "{ \"fileName\": \"" + file.getOriginalFilename() + "\", \"size\": " + file.getSize() + " }";
+                logDto.setRequestPayload(payloadSummary);
+            } else {  // 파일이 아닌 다른 모든 데이터는 기존처럼 JSON으로 변환합니다.
+
+                try {
+                    // 첫 번째 파라미터를 JSON 문자열로 변환하여 저장합니다.
+                    logDto.setRequestPayload(objectMapper.writeValueAsString(args[0]));
+                } catch (Exception e) {
+                    logDto.setRequestPayload("Request payload logging error: " + e.getMessage());
+                }
             }
         }
 
