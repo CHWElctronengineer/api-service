@@ -26,4 +26,5 @@ public class DronImageController {
         // 서비스에 요청을 전달하고 받은 응답을 그대로 클라이언트에 반환합니다.
         return dronImageService.getDroneImageById(id);
     }
+
 }
