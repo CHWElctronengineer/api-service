@@ -14,8 +14,8 @@ public class ShipmentController {
 
     private final ShipmentService ApiShipmentService;
 
-    @GetMapping("/shipments/by-order/{salesOrderId}")
-    public Object getMesDataFromProxy(@PathVariable String salesOrderId){
-        return ApiShipmentService.getMESshipmentBySalesOrderId(salesOrderId);
+    @GetMapping("/shipments")
+    public Object getMesDataFromProxy(){
+        return ApiShipmentService.getMESshipments();
     }
 }
