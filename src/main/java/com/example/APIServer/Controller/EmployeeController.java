@@ -21,7 +21,7 @@ public class EmployeeController {
      * 실제 ERP 서버와의 통신 로직을 담당하는 서비스입니다.
      * final 키워드와 @RequiredArgsConstructor를 통해 의존성이 주입됩니다.
      */
-    private final EmployeeService erpApiService;
+    private final EmployeeService ApiEmployeeService;
 
     /**
      * ERP 서버로부터 모든 직원 목록을 조회하는 요청을 중계합니다.
@@ -32,6 +32,6 @@ public class EmployeeController {
     @GetMapping("/employees")
     public Object getErpDataFromProxy() {
         // EmployeeService에 구현된 메소드를 호출하여 결과를 그대로 반환합니다.
-        return erpApiService.getErpEmployees();
+        return ApiEmployeeService.getErpEmployees();
     }
 }

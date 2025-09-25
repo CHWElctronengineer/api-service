@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -38,6 +39,8 @@ public class SecurityConfig {
                 // CORS(Cross-Origin Resource Sharing) 설정을 활성화하고,
                 // 아래에 정의된 corsConfigurationSource Bean을 사용하도록 지정합니다.
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 // HTTP 요청에 대한 인가(Authorization) 규칙을 설정합니다.
                 .authorizeHttpRequests(authorize -> authorize
