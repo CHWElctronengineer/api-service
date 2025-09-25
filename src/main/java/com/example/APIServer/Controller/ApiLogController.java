@@ -46,10 +46,10 @@ public class ApiLogController {
      * @return ApiLogEntity 객체의 리스트와 HTTP 200 OK 상태 코드를 포함한 응답
      */
     @GetMapping
-    public ResponseEntity<List<ApiLogEntity>> getLogs() {
-        // 서비스 레이어에서 모든 로그 데이터를 가져옵니다.
-        List<ApiLogEntity> logs = apiLogService.getAllLogs();
-        // 조회된 로그 목록을 응답 본문에 담아 200 상태 코드로 반환합니다.
+    public ResponseEntity<List<ApiLogEntity>> getLogs(
+            @RequestParam(required = false) String httpMethod) {
+
+        List<ApiLogEntity> logs = apiLogService.getLogsByMethod(httpMethod);
         return ResponseEntity.ok(logs);
     }
 }

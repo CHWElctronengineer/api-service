@@ -67,9 +67,22 @@ public class LogAspect {
         // 각 요청을 고유하게 식별하기 위한 추적 ID를 생성합니다.
         String traceId = UUID.randomUUID().toString();
 
-        // DB에 저장할 로그 정보를 담을 DTO 객체를 생성합니다.
+        // 요청 URI를 기반으로 서비스 이름을 결정하는 로직
+        String serviceName = "APIServer"; // 기본값
+        String uri = request.getRequestURI();
+
+        if (uri.contains("/proxy/drone-images")) {
+            serviceName = "Drone Server";
+        } else if (uri.contains("/proxy/employees") || uri.contains("/proxy/sales_orders")
+                || uri.contains("/proxy/project_plans") || uri.contains("/api/proxy/sales-orders")
+                || uri .contains("/api/proxy/positions")) {
+            serviceName = "ERP Server";
+        } else if (uri.contains("/proxy/shipments") ) {
+            serviceName = "MES Server";
+        }
+
         ApiLogDto logDto = ApiLogDto.builder()
-                .serviceName("APIServer")
+                .serviceName(serviceName) // "APIServer" 대신 serviceName 변수 사용
                 .apiEndpoint(request.getRequestURI())
                 .httpMethod(request.getMethod())
                 .clientIp(request.getRemoteAddr())

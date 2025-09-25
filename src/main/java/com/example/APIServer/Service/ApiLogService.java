@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort; // Sort import
 
+
 import java.util.List;
 
 /**
@@ -60,15 +61,17 @@ public class ApiLogService {
         apiLogRepository.save(logEntity);
     }
 
-    /**
-     * 데이터베이스에 저장된 모든 로그를 조회합니다.
-     * @Transactional(readOnly = true)를 사용하면 읽기 전용으로 최적화할 수 있습니다.
-     * @return ApiLogEntity 객체의 리스트
-     */
-    @Transactional
-    public List<ApiLogEntity> getAllLogs() {
-        // 단순히 모든 로그를 가져오는 것이 아니라, Sort 객체를 전달하여
-        // createdAt 필드를 기준으로 '내림차순(최신순)'으로 정렬하여 반환합니다.
-        return apiLogRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+    // 필터링과 정렬 기능이 포함된 메소드
+    public List<ApiLogEntity> getLogsByMethod(String httpMethod) {
+        // 정렬 조건을 생성합니다: "createdAt" 필드를 기준으로 내림차순(DESC)
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+
+        if (httpMethod == null || httpMethod.isEmpty() || "ALL".equalsIgnoreCase(httpMethod)) {
+            // 필터가 없으면, findAll에 정렬 조건을 적용하여 모든 로그를 최신순으로 가져옵니다.
+            return apiLogRepository.findAll(sort);
+        } else {
+            // 필터가 있으면, findByHttpMethod에 검색어와 정렬 조건을 함께 전달합니다.
+            return apiLogRepository.findByHttpMethod(httpMethod, sort);
+        }
     }
 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -35,12 +36,10 @@ public class ApiLogEntity {
 
     /**
      * 로그가 생성된 시간.
-     * @Column(columnDefinition = "..."): 데이터베이스 스키마 생성 시,
-     * 이 컬럼의 기본값을 현재 시간으로 설정하고, 정밀도를 6자리(마이크로초)까지 지정합니다.
-     * LocalDateTime.now(): JPA가 엔티티를 저장하기 직전, Java 객체에 현재 시간을 초기값으로 설정합니다.
      */
-    @Column(columnDefinition = "datetime default current_timestamp(6)")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @CreationTimestamp
+    @Column(updatable = false) // 생성된 후에는 업데이트되지 않도록 설정
+    private LocalDateTime createdAt;
 
     /**
      * 요청을 처리한 서비스의 이름.
