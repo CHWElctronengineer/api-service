@@ -36,9 +36,11 @@ public class ApiLogEntity {
 
     /**
      * 로그가 생성된 시간.
+     * @CreationTimestamp: 엔티티가 처음 저장될 때 JPA(Hibernate)가 현재 시간을 자동으로 할당합니다.
+     * @Column(updatable = false): 이 필드는 DB 업데이트 시 포함되지 않도록 설정합니다.
      */
     @CreationTimestamp
-    @Column(updatable = false) // 생성된 후에는 업데이트되지 않도록 설정
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     /**
