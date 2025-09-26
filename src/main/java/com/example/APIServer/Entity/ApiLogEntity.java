@@ -39,8 +39,10 @@ public class ApiLogEntity {
      * 이 컬럼의 기본값을 현재 시간으로 설정하고, 정밀도를 6자리(마이크로초)까지 지정합니다.
      * LocalDateTime.now(): JPA가 엔티티를 저장하기 직전, Java 객체에 현재 시간을 초기값으로 설정합니다.
      */
-    @Column(columnDefinition = "datetime default current_timestamp(6)")
-    private LocalDateTime createdAt = LocalDateTime.now();
+//    @Column(columnDefinition = "datetime default current_timestamp(6)")
+//    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "created_at", updatable = false, insertable = false, columnDefinition = "datetime default current_timestamp")
+    private LocalDateTime createdAt;
 
     /**
      * 요청을 처리한 서비스의 이름.
