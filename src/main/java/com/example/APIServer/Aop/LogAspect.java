@@ -75,7 +75,7 @@ public class LogAspect {
             serviceName = "Drone Server";
         } else if (uri.contains("/proxy/employees") || uri.contains("/proxy/sales_orders")
                 || uri.contains("/proxy/project_plans") || uri.contains("/api/proxy/sales-orders")
-                || uri .contains("/api/proxy/positions")) {
+                || uri .contains("/api/proxy/positions") || uri.contains("/api/proxy/inventory")) {
             serviceName = "ERP Server";
         } else if (uri.contains("/proxy/shipments") ) {
             serviceName = "MES Server";
