@@ -1,10 +1,10 @@
 package com.example.APIServer.Controller;
 
+import com.example.APIServer.Dto.ProjectPlanDto;
 import com.example.APIServer.Service.ProjectPlanService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * ERP 서버의 생산 계획(Project Plan) 관련 API를 중계(Proxy)하는 컨트롤러입니다.
@@ -33,5 +33,19 @@ public class ProjectPlanController {
     public Object getErpDataFromProxy() {
         // ProjectPlanService에 구현된 메소드를 호출하여 결과를 그대로 반환합니다.
         return erpApiService.getErpProjectPlans();
+    }
+
+    /**
+     * ERP 서버로 생산 계획 수정(PUT) 요청을 중계합니다.
+     * @param planId 수정할 계획 ID
+     * @param dto 수정할 데이터
+     * @return 성공 시 HTTP 200 OK
+     */
+    @PutMapping("/project_plans/{planId}")
+    public ResponseEntity<Void> updateErpDataFromProxy(
+            @PathVariable String planId,
+            @RequestBody ProjectPlanDto dto) {
+        erpApiService.updateErpProjectPlan(planId, dto);
+        return ResponseEntity.ok().build();
     }
 }

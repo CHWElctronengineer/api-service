@@ -1,5 +1,6 @@
 package com.example.APIServer.Service;
 
+import com.example.APIServer.Dto.ProjectPlanDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -14,6 +15,7 @@ public class ProjectPlanService {
 
     // AppConfig에 Bean으로 등록된 RestTemplate 객체를 생성자 주입 방식으로 주입받습니다.
     private final RestTemplate restTemplate;
+    private final String ERP_API_URL = "http://localhost:8081/api/project_plans";
 
     /**
      * ERP 서버로부터 모든 생산 계획 목록을 조회합니다.
@@ -35,6 +37,22 @@ public class ProjectPlanService {
             e.printStackTrace();
             // 오류가 발생했음을 호출한 쪽에 알리기 위해 null을 반환합니다.
             return null;
+        }
+    }
+
+    /**
+     * ERP 서버로 생산 계획 수정(PUT) 요청을 중계합니다.
+     * @param planId 수정할 계획의 ID
+     * @param dto 수정할 내용이 담긴 데이터
+     */
+    public void updateErpProjectPlan(String planId, ProjectPlanDto dto) {
+        try {
+            // HTTP PUT 요청을 보내고, 별도의 응답은 받지 않습니다.
+            restTemplate.put(ERP_API_URL + "/" + planId, dto);
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 예외를 다시 던져서 Controller 단에서 오류를 인지하게 할 수 있습니다.
+            throw new RuntimeException("ERP 서버로 수정 요청 중 오류가 발생했습니다.", e);
         }
     }
 }
