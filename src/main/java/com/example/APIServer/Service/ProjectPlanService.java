@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
+
 /**
  * 외부 ERP 서버의 생산 계획(Project Plan) API와 통신하는 로직을 담당하는 서비스 클래스입니다.
  * RestTemplate을 사용하여 ERP 서버에 HTTP 요청을 보내고 응답을 받아 처리합니다.
@@ -53,6 +55,22 @@ public class ProjectPlanService {
             e.printStackTrace();
             // 예외를 다시 던져서 Controller 단에서 오류를 인지하게 할 수 있습니다.
             throw new RuntimeException("ERP 서버로 수정 요청 중 오류가 발생했습니다.", e);
+        }
+    }
+
+
+    // ==================================================
+
+    // 진행률만 업데이트 중계
+    public void updateErpProjectProgress(String planId, BigDecimal progressRate) {
+        try {
+            restTemplate.put(
+                    ERP_API_URL + "/" + planId + "/progress",
+                    progressRate   // 👉 BigDecimal 그대로 넘기면 JSON {"progressRate":45.5} 가 아니라 그냥 숫자 45.5 로 전송됨
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("ERP 서버로 진행률 업데이트 요청 중 오류 발생", e);
         }
     }
 }

@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 /**
  * ERP 서버의 생산 계획(Project Plan) 관련 API를 중계(Proxy)하는 컨트롤러입니다.
  * 클라이언트의 요청을 받아 ProjectPlanService를 통해 ERP 서버로 전달하고,
@@ -48,4 +50,13 @@ public class ProjectPlanController {
         erpApiService.updateErpProjectPlan(planId, dto);
         return ResponseEntity.ok().build();
     }
+
+    // ==============================================================
+    @PutMapping("/project_plans/{planId}/progress")
+    public void updateProjectProgress(
+            @PathVariable String planId,
+            @RequestBody BigDecimal progressRate) {
+        erpApiService.updateErpProjectProgress(planId, progressRate);
+    }
+
 }
