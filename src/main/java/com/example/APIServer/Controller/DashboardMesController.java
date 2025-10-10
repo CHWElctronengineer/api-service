@@ -22,4 +22,37 @@ public class DashboardMesController {
         return ResponseEntity.ok(dashboardService.fetchProjectsFromErp());
     }
 
+    @GetMapping("/customers")
+    public ResponseEntity<List<Map<String, Object>>> getErpCustomers() {
+        return ResponseEntity.ok(dashboardService.fetchCustomersFromErp());
+    }
+
+    @GetMapping("/materials")
+    public ResponseEntity<List<Map<String, Object>>> getErpMaterials() {
+        return ResponseEntity.ok(dashboardService.fetchMaterialsFromErp());
+    }
+
+    @GetMapping("/purchaseOrders")
+    public ResponseEntity<List<Map<String, Object>>> getErpPurchaseOrders() {
+        return ResponseEntity.ok(dashboardService.fetchPurchaseOrdersFromErp());
+    }
+
+    //생산계획
+    @GetMapping("/project_plans")
+    public ResponseEntity<List<Map<String, Object>>> getErpProjectPlans() {
+        return ResponseEntity.ok(dashboardService.fetchProjectPlansFromErp());
+    }
+
+    // 6. 출하 현황 (Sales Orders)
+    @GetMapping("/sales_orders")
+    public ResponseEntity<List<Map<String, Object>>> getErpSalesOrders() {
+        return ResponseEntity.ok(dashboardService.fetchSalesOrdersFromErp());
+    }
+
+    //7. 인사/사원 현황 (Employees)
+    @GetMapping("/employees")
+    public ResponseEntity<List<Map<String, Object>>> getErpEmployees() {
+        return ResponseEntity.ok(dashboardService.fetchEmployeesFromErp());
+    }
+
 }
