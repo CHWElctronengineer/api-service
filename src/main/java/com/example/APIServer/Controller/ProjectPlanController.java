@@ -51,6 +51,15 @@ public class ProjectPlanController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * ERP의 모든 생산 계획 ID를 MES로 동기화하라는 요청을 처리합니다.
+     */
+    @PostMapping("/project_plans/sync-to-mes")
+    public ResponseEntity<String> syncAllPlanIdsToMes() {
+        erpApiService.syncAllPlanIdsToMes();
+        return ResponseEntity.ok("ERP Plan ID가 MES로 성공적으로 동기화되었습니다.");
+    }
+
     // ==============================================================
     @PutMapping("/project_plans/{planId}/progress")
     public void updateProjectProgress(
